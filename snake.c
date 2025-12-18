@@ -10,26 +10,28 @@
 #define MAX_LEN 40
 typedef struct snake
 {
-    int position[MAX_LEN][2] ;
-    int len ; 
-}snake;
+    int position[MAX_LEN][2];
+    int len;
+} snake;
 
-
-void draw(int x, int y )
+void draw(snake *s)
 {
+    
     printf("##########################################\n");
     for (int i = 0; i < HEIGHT; i++)
     {
         printf("#");
         for (int j = 0; j < WIDTH; j++)
         {
-            if (x == j && y == i)
+            for (int n = 0; n < s->len; n++)
             {
-                printf("O");
-            }
-            else
-            {
-                printf(" ");
+
+                if (s->position[n][0] == i && s->position[n][1] == j)
+                {
+                    printf("o");
+                    
+                    break;
+                }
             }
         }
         printf("#");
@@ -47,9 +49,10 @@ void move(int *x, int *y, int *c)
             (*x)++;
             *c = 68;
         }
-        else{
-            (*y)++ ; 
-            *c = 115 ;
+        else
+        {
+            (*y)++;
+            *c = 115;
         }
 
     } // top left corner
@@ -107,9 +110,10 @@ void move(int *x, int *y, int *c)
         (*x)++;
         *c = 68;
     } // top wall behaviour
-    else if (*y == HEIGHT - 1 && (*c == 115 || *c == 83) ){
-        (*x) ++ ; 
-        *c = 68; 
+    else if (*y == HEIGHT - 1 && (*c == 115 || *c == 83))
+    {
+        (*x)++;
+        *c = 68;
     }
     else
     {
@@ -168,19 +172,19 @@ int main()
     int y = HEIGHT / 2;
     int c;
 
-    snake s ;
-    s.len = 2 ; 
-    s.position[0][0] = x ; 
-    s.position[0][1] = y ; 
-    s.position[1][0] = x - 1 ; 
-    s.position[1][1] = y - 1 ;  
+    snake s;
+    s.len = 2;
+    s.position[0][0] = x;
+    s.position[0][1] = y;
+    s.position[1][0] = x - 1;
+    s.position[1][1] = y - 1;
 
     while (true)
     {
         system("cls");
         move(&x, &y, &c);
 
-        draw(x, y);
+        draw(&s);
         Sleep(120);
     }
 }

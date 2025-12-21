@@ -60,164 +60,114 @@ void tail_displacement(snake *s)
         }
     }
 }
-
-
-bool generate(int * x , int * y){
-    
-}
-void move(snake *s, int *c)
+void LOOSE_CHECK(snake *s, int *LOST)
 {
-    
-    if (s->position[0][1] == 0 && s->position[0][0] == 0)
+    if (s->position[0][1] == -1)
     {
-        if ((*c == 90 || *c == 122))
-        {
-            (s->position[0][1])++;
-            *c = 68;
-            s->dir = RIGHT;
-        }
-        else
-        {
-            (s->position[0][0])++;
-            *c = 115;
-            s->dir = DOWN;
-        }
-
-    } // top left corner
-    else if (s->position[0][1] == 0 && s->position[0][0] == (HEIGHT - 1))
-    {
-        if (*c == 115 || *c == 83)
-        {
-            (s->position[0][1])++;
-            *c = 68;
-            s->dir = RIGHT;
-        }
-        else
-        {
-            (s->position[0][0])--;
-            *c = 90;
-            s->dir = UP;
-        }
-    } // bot left corner
-    else if (s->position[0][1] == WIDTH - 1 && s->position[0][0] == 0)
-    {
-        if ((*c == 68 || *c == 100))
-        {
-            (s->position[0][0])++;
-            *c = 115;
-            s->dir = DOWN;
-        }
-        else
-        {
-            (s->position[0][1])--;
-            *c = 81;
-            s->dir = LEFT;
-        }
-    } // top right corner
-    else if (s->position[0][1] == WIDTH - 1 && s->position[0][0] == HEIGHT - 1)
-    {
-        if (*c == 115 || *c == 83)
-        {
-            (s->position[0][1])--;
-            *c = 81;
-            s->dir = LEFT;
-        }
-        else
-        {
-            (s->position[0][0])--;
-            *c = 90;
-            s->dir = UP;
-        }
-    } // bot right corner
-    else if (s->position[0][1] == 0 && (*c == 81 || *c == 113))
-    {
-        *c = 90;
-        (s->position[0][0])--;
-        s->dir = UP;
+        system("cls");
+        printf("YOU LOST \n");
+        printf("YOUR SCORE");
+        exit(0);
     } // left wall behaviour
-    else if (s->position[0][1] == WIDTH - 1 && (*c == 68 || *c == 100))
+    else if (s->position[0][1] == WIDTH && s->dir == RIGHT)
     {
-        *c = 115;
-        (s->position[0][0])++;
-        s->dir = DOWN;
+        system("cls");
+        printf("YOU LOST \n");
+        printf("YOUR SCORE");
+        exit(0);
+
     } // right wall behaviour
-    else if (s->position[0][0] == 0 && (*c == 90 || *c == 122))
+    else if (s->position[0][0] == -1 && s->dir == UP)
     {
-        (s->position[0][1])++;
-        *c = 68;
-        s->dir = RIGHT;
+        system("cls");
+        printf("YOU LOST \n");
+        printf("YOUR SCORE");
+        exit(0);
     } // top wall behaviour
-    else if (s->position[0][0] == HEIGHT - 1 && (*c == 115 || *c == 83))
+    else if (s->position[0][0] == HEIGHT   && s->dir == DOWN)
     {
-        (s->position[0][1])++;
-        *c = 68;
-        s->dir = RIGHT;
+        system("cls");
+        printf("YOU LOST \n");
+        printf("YOUR SCORE");
+        exit(0);
+    }
+}
+void MOVE_UP(snake *s)
+{
+    tail_displacement(s);
+    (s->position[0][0])--;
+    s->dir = UP;
+}
+void MOVE_DOWN(snake *s)
+{
+    tail_displacement(s);
+    (s->position[0][0])++;
+    s->dir = DOWN;
+}
+void MOVE_RIGHT(snake *s)
+{
+    tail_displacement(s);
+    (s->position[0][1])++;
+    s->dir = RIGHT;
+}
+void MOVE_LEFT(snake *s)
+{
+    tail_displacement(s);
+    (s->position[0][1])--;
+    s->dir = LEFT;
+}
+
+bool generate(int *x, int *y)
+{
+}
+void move(snake *s, int *c, int *LOST)
+{
+
+    if (kbhit())
+    {
+        *c = getch();
+        
+        if ((*c == 90 || *c == 122) && s->dir != DOWN)
+        {
+            MOVE_UP(s);
+        } // move up
+
+        else if ((*c == 115 || *c == 83) && s->dir != UP)
+        {
+            MOVE_DOWN(s);
+        } // move down
+
+        else if ((*c == 81 || *c == 113) && s->dir != RIGHT)
+        {
+            MOVE_LEFT(s);
+        } // move left
+
+        else if ((*c == 68 || *c == 100) && s->dir != LEFT)
+        {
+            MOVE_RIGHT(s);
+        } // move right
     }
     else
     {
-
-        if (kbhit() )
+        
+        if (s->dir == UP)
         {
-
-            *c = getch();
-            if ((*c == 90 || *c == 122) && s->position[0][0] > 0 && s->dir != DOWN)
-            {
-                tail_displacement(s);
-                (s->position[0][0])--;
-                s->dir = UP;
-            } // moove up
-
-            else if ((*c == 115 || *c == 83) && s->position[0][0] < HEIGHT - 1 && s->dir != UP)
-            {
-                tail_displacement(s);
-                (s->position[0][0])++;
-                s->dir = DOWN;
-            } // moove down
-
-            else if ((*c == 81 || *c == 113) && s->position[0][1] > 0 && s->dir != RIGHT)
-            {
-                tail_displacement(s);
-                (s->position[0][1])--;
-                s->dir = LEFT;
-            } // moove left
-
-            else if ((*c == 68 || *c == 100) && s->position[0][1] < WIDTH - 1 && s->dir != LEFT)
-            {
-                tail_displacement(s);
-                (s->position[0][1])++;
-                s->dir = RIGHT;
-            } // moove right
-
+            MOVE_UP(s);
         }
-        else
+
+        else if (s->dir == DOWN)
         {
-            if (s->dir == UP && s->position[0][0] > 0)
-            {
-                tail_displacement(s);
-                (s->position[0][0])--;
-                s->dir = UP;
-            }
+            MOVE_DOWN(s);
+        }
 
-            if (s->dir == DOWN && s->position[0][0] < (HEIGHT - 1))
-            {
-                tail_displacement(s);
-                (s->position[0][0])++;
-                s->dir = DOWN;
-            }
+        else if (s->dir == LEFT)
+        {
+            MOVE_LEFT(s);
+        }
 
-            if (s->dir == LEFT && s->position[0][1] > 0)
-            {
-                tail_displacement(s);
-                (s->position[0][1])--;
-                s->dir = LEFT;
-            }
-
-            if (s->dir == RIGHT && s->position[0][1] < (WIDTH - 1))
-            {
-                tail_displacement(s);
-                (s->position[0][1])++;
-                s->dir == RIGHT;
-            }
+        else if (s->dir == RIGHT)
+        {
+            MOVE_RIGHT(s);
         }
     }
 }
@@ -238,12 +188,13 @@ int main()
     s.position[1][1] = x - 1;
     s.position[2][0] = y;
     s.position[2][1] = x - 2;
-
-    while (true)
+    int LOST = 0;
+    while (LOST == 0)
     {
 
         system("cls");
-        move(&s, &c);
+        move(&s, &c, &LOST);
+        LOOSE_CHECK(&s, &LOST);
         draw(&s);
         Sleep(120);
     }

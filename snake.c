@@ -8,10 +8,21 @@
 #define WIDTH 40
 #define HEIGHT 20
 #define MAX_LEN 40
+
+typedef enum
+{
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+    STATIC
+} Direction;
+
 typedef struct snake
 {
     int position[MAX_LEN][2];
     int len;
+    Direction dir;
 } snake;
 
 void draw(snake *s)
@@ -50,20 +61,26 @@ void tail_displacement(snake *s)
     }
 }
 
+
+bool generate(int * x , int * y){
+    
+}
 void move(snake *s, int *c)
 {
-    int temp = *c;
+    
     if (s->position[0][1] == 0 && s->position[0][0] == 0)
     {
         if ((*c == 90 || *c == 122))
         {
             (s->position[0][1])++;
             *c = 68;
+            s->dir = RIGHT;
         }
         else
         {
             (s->position[0][0])++;
             *c = 115;
+            s->dir = DOWN;
         }
 
     } // top left corner
@@ -73,113 +90,133 @@ void move(snake *s, int *c)
         {
             (s->position[0][1])++;
             *c = 68;
+            s->dir = RIGHT;
         }
         else
         {
             (s->position[0][0])--;
             *c = 90;
+            s->dir = UP;
         }
-    } // top right corner
+    } // bot left corner
     else if (s->position[0][1] == WIDTH - 1 && s->position[0][0] == 0)
     {
         if ((*c == 68 || *c == 100))
         {
             (s->position[0][0])++;
             *c = 115;
+            s->dir = DOWN;
         }
         else
         {
             (s->position[0][1])--;
             *c = 81;
+            s->dir = LEFT;
         }
-    } // bot left corner
+    } // top right corner
     else if (s->position[0][1] == WIDTH - 1 && s->position[0][0] == HEIGHT - 1)
     {
         if (*c == 115 || *c == 83)
         {
             (s->position[0][1])--;
             *c = 81;
+            s->dir = LEFT;
         }
         else
         {
             (s->position[0][0])--;
             *c = 90;
+            s->dir = UP;
         }
     } // bot right corner
     else if (s->position[0][1] == 0 && (*c == 81 || *c == 113))
     {
         *c = 90;
         (s->position[0][0])--;
+        s->dir = UP;
     } // left wall behaviour
     else if (s->position[0][1] == WIDTH - 1 && (*c == 68 || *c == 100))
     {
         *c = 115;
         (s->position[0][0])++;
+        s->dir = DOWN;
     } // right wall behaviour
     else if (s->position[0][0] == 0 && (*c == 90 || *c == 122))
     {
         (s->position[0][1])++;
         *c = 68;
+        s->dir = RIGHT;
     } // top wall behaviour
     else if (s->position[0][0] == HEIGHT - 1 && (*c == 115 || *c == 83))
     {
         (s->position[0][1])++;
         *c = 68;
+        s->dir = RIGHT;
     }
     else
     {
 
-        if (kbhit())
+        if (kbhit() )
         {
+
             *c = getch();
-            if ((*c == 90 || *c == 122) && s->position[0][0] > 0)
+            if ((*c == 90 || *c == 122) && s->position[0][0] > 0 && s->dir != DOWN)
             {
                 tail_displacement(s);
                 (s->position[0][0])--;
-            }//moove up
+                s->dir = UP;
+            } // moove up
 
-            if ((*c == 115 || *c == 83) && s->position[0][0] < HEIGHT - 1)
+            else if ((*c == 115 || *c == 83) && s->position[0][0] < HEIGHT - 1 && s->dir != UP)
             {
                 tail_displacement(s);
                 (s->position[0][0])++;
-            }//moove down
+                s->dir = DOWN;
+            } // moove down
 
-            if ((*c == 81 || *c == 113) && s->position[0][1] > 0)
+            else if ((*c == 81 || *c == 113) && s->position[0][1] > 0 && s->dir != RIGHT)
             {
                 tail_displacement(s);
                 (s->position[0][1])--;
-            }//moove left
+                s->dir = LEFT;
+            } // moove left
 
-            if ((*c == 68 || *c == 100) && s->position[0][1] < WIDTH - 1)
+            else if ((*c == 68 || *c == 100) && s->position[0][1] < WIDTH - 1 && s->dir != LEFT)
             {
                 tail_displacement(s);
                 (s->position[0][1])++;
-            }//moove right
+                s->dir = RIGHT;
+            } // moove right
+
         }
         else
         {
-            if ((*c == 90 || *c == 122) && s->position[0][0] > 0)
+            if (s->dir == UP && s->position[0][0] > 0)
             {
                 tail_displacement(s);
                 (s->position[0][0])--;
+                s->dir = UP;
             }
 
-            if ((*c == 115 || *c == 83) && s->position[0][0] < (HEIGHT - 1))
+            if (s->dir == DOWN && s->position[0][0] < (HEIGHT - 1))
             {
                 tail_displacement(s);
                 (s->position[0][0])++;
+                s->dir = DOWN;
             }
 
-            if ((*c == 81 || *c == 113) && s->position[0][1] > 0)
+            if (s->dir == LEFT && s->position[0][1] > 0)
             {
                 tail_displacement(s);
                 (s->position[0][1])--;
+                s->dir = LEFT;
             }
 
-            if ((*c == 68 || *c == 100) && s->position[0][1] < (WIDTH - 1))
+            if (s->dir == RIGHT && s->position[0][1] < (WIDTH - 1))
             {
                 tail_displacement(s);
                 (s->position[0][1])++;
+                s->dir == RIGHT;
             }
         }
     }
@@ -187,29 +224,20 @@ void move(snake *s, int *c)
 
 int main()
 {
-    printf("test");
+
     int x = WIDTH / 2;
     int y = HEIGHT / 2;
     int c;
 
     snake s;
-    s.len = 8;
+    s.dir = STATIC;
+    s.len = 3;
     s.position[0][0] = y;
     s.position[0][1] = x;
     s.position[1][0] = y;
     s.position[1][1] = x - 1;
     s.position[2][0] = y;
     s.position[2][1] = x - 2;
-    s.position[2][0] = y;
-    s.position[3][1] = x - 3;
-    s.position[4][0] = y;
-    s.position[4][1] = x - 4;
-    s.position[5][0] = y;
-    s.position[5][1] = x - 5;
-    s.position[6][0] = y;
-    s.position[6][1] = x - 6;
-    s.position[7][0] = y;
-    s.position[7][1] = x - 7;
 
     while (true)
     {

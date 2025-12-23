@@ -4,6 +4,7 @@
 #include <conio.h>
 #include <stdlib.h>
 #include <windows.h>
+#include <time.h>
 
 #define WIDTH 40
 #define HEIGHT 20
@@ -14,8 +15,8 @@ typedef enum
     UP,
     DOWN,
     LEFT,
-    RIGHT,
-    STATIC
+    RIGHT
+   
 } Direction;
 
 typedef struct snake
@@ -25,10 +26,11 @@ typedef struct snake
     Direction dir;
 } snake;
 
-void draw(snake *s)
+void draw(snake *s, int *food_x, int *food_y)
 {
     char table[HEIGHT][WIDTH];
     memset(table, ' ', sizeof(table));
+    table[*food_y][*food_x] = '@';
     for (int i = 0; i < s->len; i++)
     {
         table[s->position[i][0]][s->position[i][1]] = 'o';
@@ -60,36 +62,24 @@ void tail_displacement(snake *s)
         }
     }
 }
-void LOOSE_CHECK(snake *s, int *LOST)
+void LOOSE_CHECK(snake *s, int *score)
 {
-    if (s->position[0][1] == -1)
+    if (s->position[0][1] == -1 || s->position[0][1] == WIDTH || s->position[0][0] == -1 || s->position[0][0] == HEIGHT)
     {
         system("cls");
         printf("YOU LOST \n");
-        printf("YOUR SCORE");
+        printf("YOUR SCORE %d", (*score));
         exit(0);
-    } // left wall behaviour
-    else if (s->position[0][1] == WIDTH && s->dir == RIGHT)
+    } 
+    for (int i = 1; i < s->len; i++)
     {
-        system("cls");
-        printf("YOU LOST \n");
-        printf("YOUR SCORE");
-        exit(0);
-
-    } // right wall behaviour
-    else if (s->position[0][0] == -1 && s->dir == UP)
-    {
-        system("cls");
-        printf("YOU LOST \n");
-        printf("YOUR SCORE");
-        exit(0);
-    } // top wall behaviour
-    else if (s->position[0][0] == HEIGHT   && s->dir == DOWN)
-    {
-        system("cls");
-        printf("YOU LOST \n");
-        printf("YOUR SCORE");
-        exit(0);
+        if (s->position[0][0] == s->position[i][0] && s->position[0][1] == s->position[i][1])
+        {
+            system("cls");
+            printf("YOU LOST \n");
+            printf("YOUR SCORE %d", (*score));
+            exit(0);
+        }
     }
 }
 void MOVE_UP(snake *s)
@@ -117,16 +107,58 @@ void MOVE_LEFT(snake *s)
     s->dir = LEFT;
 }
 
-bool generate(int *x, int *y)
+bool check_in(snake *s, int *x, int *y)
 {
+    for (int i = 0; i < s->len; i++)
+    {
+        if (s->position[i][0] == *y && s->position[i][1] == *x)
+        {
+            return true;
+        }
+    }
+    return false;
 }
-void move(snake *s, int *c, int *LOST)
+
+void eat_check(snake *s, int *x, int *y, bool *eaten, int *score)
+{
+    if (s->position[0][1] == *x && s->position[0][0] == *y)
+    {
+        *eaten = true;
+        s->len++;
+        s->position[s->len - 1][0] = s->position[s->len - 2][0];
+        s->position[s->len - 1][1] = s->position[s->len - 2][1];
+        (*score)++;
+    }
+}
+
+void generate(snake *s, bool *eaten, int *rand_x, int *rand_y)
+{
+    if (!*eaten)
+    {
+        return;
+    }
+    else
+    {
+        srand(time(NULL));
+        int rx;
+        int ry;
+        do
+        {
+            rx = rand() % WIDTH;
+            ry = rand() % HEIGHT;
+        } while (check_in(s, &rx, &ry));
+        *rand_x = rx;
+        *rand_y = ry;
+        *eaten = false;
+    }
+}
+void move(snake *s, int *c)
 {
 
     if (kbhit())
     {
         *c = getch();
-        
+
         if ((*c == 90 || *c == 122) && s->dir != DOWN)
         {
             MOVE_UP(s);
@@ -149,7 +181,7 @@ void move(snake *s, int *c, int *LOST)
     }
     else
     {
-        
+
         if (s->dir == UP)
         {
             MOVE_UP(s);
@@ -178,24 +210,28 @@ int main()
     int x = WIDTH / 2;
     int y = HEIGHT / 2;
     int c;
+    int score = 0;
 
     snake s;
-    s.dir = STATIC;
-    s.len = 3;
+    
+    s.len = 1;
     s.position[0][0] = y;
     s.position[0][1] = x;
-    s.position[1][0] = y;
-    s.position[1][1] = x - 1;
-    s.position[2][0] = y;
-    s.position[2][1] = x - 2;
-    int LOST = 0;
-    while (LOST == 0)
+
+
+    int rand_x;
+    int rand_y;
+    bool eaten = true;
+    while (true)
     {
 
         system("cls");
-        move(&s, &c, &LOST);
-        LOOSE_CHECK(&s, &LOST);
-        draw(&s);
+
+        move(&s, &c);
+        LOOSE_CHECK(&s , &score);
+        generate(&s, &eaten, &rand_x, &rand_y);
+        eat_check(&s, &rand_x, &rand_y, &eaten, &score);
+        draw(&s, &rand_x, &rand_y);
         Sleep(120);
     }
 }
